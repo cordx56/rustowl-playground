@@ -10,7 +10,7 @@ mod lsp;
 
 #[tokio::main]
 async fn main() {
-    let app = Router::new().route("/analyze", post(analyze));
+    let app = Router::new().route("/api/analyze", post(analyze));
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
     println!("http://localhost:3000/analyze");
@@ -88,7 +88,6 @@ async fn do_analyze(
     time::sleep(time::Duration::from_millis(300)).await;
 
     send.write_all(lsp::cursor(40, &path, line, character).as_bytes())?;
-    time::sleep(time::Duration::from_millis(300)).await;
 
     let mut result;
     loop {

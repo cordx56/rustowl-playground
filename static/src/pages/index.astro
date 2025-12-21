@@ -1,0 +1,136 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout>
+  <div class="container">
+    <div>
+      <header class="header">
+        <img src="/rustowl-logo-dark.svg" style="height: 6rem; margin-right: 1rem;" />
+        <div style="font-size: 3rem;">Playground</div>
+      </header>
+      <div class="ribbon">
+        <a href="https://github.com/cordx56/rustowl"><img loading="lazy" decoding="async" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_red_aa0000.png" class="attachment-full size-full" alt="Fork me on GitHub"></a>
+      </div>
+    </div>
+    <div id="editor"></div>
+  </div>
+
+  <script>
+    import { editor } from "monaco-editor";
+    import { analyze } from "../utils/api";
+    import { convert } from "../utils/decorations";
+
+    let currentDecoration: editor.IEditorDecorationsCollection | null = null;
+    let timer: any = null;
+
+    const elem = document.getElementById("editor");
+    if (elem) {
+      const area = editor.create(elem, {
+        value: `use std::sync::{Arc, Mutex};
+
+fn main() {
+    let data = Arc::new(Mutex::new(1));
+    loop {
+        let mut lock = data.lock().unwrap();
+        *lock += 1;
+
+        if 10 < *lock {
+            break;
+        } else {
+            // dead lock!
+            println!("{}", *data.lock().unwrap());
+        }
+    }
+}
+`,
+        language: "rust",
+        fontSize: 24,
+        theme: "vs-dark",
+      });
+
+      area.onDidChangeCursorPosition(async (ev) => {
+        if (currentDecoration) {
+          currentDecoration.clear();
+          currentDecoration = null;
+        }
+        if (timer === null) {
+          timer = setTimeout(async () => {
+            const pos = ev.position;
+            const resp = await analyze(
+              area.getValue(),
+              pos.lineNumber - 1,
+              pos.column - 1,
+            );
+            if (resp) {
+              const decos = convert(resp);
+              currentDecoration = area.createDecorationsCollection(decos);
+            }
+            timer = null;
+          }, 200);
+        }
+      });
+    }
+  </script>
+
+  <style is:inline>
+    html, body {
+      color: #d4d4d4;
+      background-color: #1e1e1e;
+    }
+    * {
+      box-sizing: border-box;
+    }
+
+    .container {
+      display: flex;
+      position: relative;
+      flex-direction: column;
+      margin: auto;
+      width: 100%;
+      height: 100%;
+      max-width: 1200px;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      align-content: center;
+      justify-content: center;
+      margin: 10px auto;
+      font-family: sans-serif;
+    }
+    .ribbon {
+      position: absolute;
+      right:0;
+      top: 0;
+      z-index: 100;
+    }
+    #editor {
+      width: 100%;
+      height: 100%;
+      border: 1px solid #d4d4d4;
+    }
+
+    .lifetime {
+      text-decoration: underline solid 4px hsla(125, 80%, 60%, 0.6);
+    }
+    .move {
+      text-decoration: underline solid 4px hsla(35, 80%, 60%, 0.6);
+    }
+    .call {
+      text-decoration: underline solid 4px hsla(35, 80%, 60%, 0.6);
+    }
+    .imm_borrow {
+      text-decoration: underline solid 4px hsla(230, 80%, 60%, 0.6);
+    }
+    .mut_borrow {
+      text-decoration: underline solid 4px hsla(300, 80%, 60%, 0.6);
+    }
+    .outlive {
+      text-decoration: underline solid 4px hsla(0, 80%, 60%, 0.6);
+    }
+    .shared_mut {
+      text-decoration: underline solid 4px hsla(0, 80%, 60%, 0.6);
+    }
+  </style>
+</Layout>

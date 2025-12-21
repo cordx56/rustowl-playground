@@ -1,24 +1,19 @@
-# syntax=docker/dockerfile:1
+FROM --platform=${BUILDPLATFORM} debian:bookworm-slim
+WORKDIR /build
 
-FROM golang:1.24-alpine AS build
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends build-essential=12.9 ca-certificates=20230311+deb12u1 curl=7.88.1-10+deb12u14 && \
+    rm -rf /var/lib/apt/lists/*
 
-# Set destination for COPY
+RUN mkdir /app
+
+COPY container_src/ .
+
+RUN ./rustowl/scripts/build/toolchain cargo install --locked --path rustowl --root /app && rm -rf rustowl/target/
+
+RUN ./rustowl/scripts/build/toolchain cargo install --locked --path . --root /app && rm -rf target/
+
 WORKDIR /app
-
-# Download any Go modules
-COPY container_src/go.mod ./
-RUN go mod download
-
-# Copy container source code
-COPY container_src/*.go ./
-
-# Build
-RUN CGO_ENABLED=0 GOOS=linux go build -o /server
-
-FROM scratch
-COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY --from=build /server /server
-EXPOSE 8080
-
-# Run
-CMD ["/server"]
+ENV PATH=/app/bin:$PATH
+EXPOSE 3000
+ENTRYPOINT ["rustowl-container"]
