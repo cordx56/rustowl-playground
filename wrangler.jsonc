@@ -15,7 +15,8 @@
     {
       "class_name": "RustOwlContainer",
       "image": "./Dockerfile",
-      "max_instances": 10,
+      "max_instances": 3,
+      "instance_type": "standard-1",
     },
   ],
   "durable_objects": {

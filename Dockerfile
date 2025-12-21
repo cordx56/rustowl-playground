@@ -1,4 +1,4 @@
-FROM --platform=${BUILDPLATFORM} debian:bookworm-slim
+FROM debian:bookworm-slim
 WORKDIR /build
 
 RUN apt-get update && \
