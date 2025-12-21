@@ -6,11 +6,27 @@ import Layout from "../layouts/Layout.astro";
   <div class="container">
     <div>
       <header class="header">
-        <img src="/rustowl-logo-dark.svg" style="height: 6rem; margin-right: 1rem;" />
+        <img
+          src="/rustowl-logo-dark.svg"
+          style="height: 6rem; margin-right: 1rem;"
+        />
         <div style="font-size: 3rem;">Playground</div>
       </header>
+      <p style="margin: 1.4rem; text-align: center; font-size: 1.4rem;">
+        Visualize ownership and lifetimes in Rust
+      </p>
       <div class="ribbon">
-        <a href="https://github.com/cordx56/rustowl"><img loading="lazy" decoding="async" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_red_aa0000.png" class="attachment-full size-full" alt="Fork me on GitHub"></a>
+        <a href="https://github.com/cordx56/rustowl"
+          ><img
+            loading="lazy"
+            decoding="async"
+            width="149"
+            height="149"
+            src="https://github.blog/wp-content/uploads/2008/12/forkme_right_red_aa0000.png"
+            class="attachment-full size-full"
+            alt="Fork me on GitHub"
+          /></a
+        >
       </div>
     </div>
     <div id="editor"></div>
@@ -63,7 +79,7 @@ fn main() {
               pos.column - 1,
             );
             if (resp) {
-              const decos = convert(resp);
+              const decos = convert(area.getValue(), resp);
               currentDecoration = area.createDecorationsCollection(decos);
             }
             timer = null;
@@ -74,9 +90,11 @@ fn main() {
   </script>
 
   <style is:inline>
-    html, body {
+    html,
+    body {
       color: #d4d4d4;
       background-color: #1e1e1e;
+      font-family: sans-serif;
     }
     * {
       box-sizing: border-box;
@@ -97,11 +115,10 @@ fn main() {
       align-content: center;
       justify-content: center;
       margin: 10px auto;
-      font-family: sans-serif;
     }
     .ribbon {
       position: absolute;
-      right:0;
+      right: 0;
       top: 0;
       z-index: 100;
     }

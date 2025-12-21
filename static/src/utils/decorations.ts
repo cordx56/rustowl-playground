@@ -132,30 +132,59 @@ export const zLspCursorResponse = z.object({
 });
 
 export const convert = (
+  source: string,
   decorations: z.infer<typeof zLspCursorResponse>,
 ): editor.IModelDeltaDecoration[] => {
+  const lines = source.split("\n");
   const decos = decorations.decorations
     .filter(
       (v) =>
         !v.overlapped &&
-        v.range.start.line <= v.range.end.line &&
-        v.range.start.character <= v.range.end.character,
+        (v.range.start.line <= v.range.end.line ||
+          v.range.start.character <= v.range.end.character),
     )
     .map((v) => {
-      const range: IRange = {
-        startLineNumber: v.range.start.line + 1,
-        startColumn: v.range.start.character + 1,
-        endLineNumber: v.range.end.line + 1,
-        endColumn: v.range.end.character + 1,
-      };
-      const deco: editor.IModelDeltaDecoration = {
+      let ranges: IRange[] = [];
+      if (0 < v.range.end.line - v.range.start.line) {
+        // first line
+        ranges.push({
+          startLineNumber: v.range.start.line + 1,
+          startColumn: v.range.start.character + 1,
+          endLineNumber: v.range.start.line + 1,
+          endColumn: lines[v.range.start.line].length,
+        });
+        for (let i = v.range.start.line + 1; i < v.range.end.line; i++) {
+          ranges.push({
+            startLineNumber: i + 1,
+            startColumn: 1,
+            endLineNumber: i + 1,
+            endColumn: lines[i].length,
+          });
+        }
+        // last line
+        ranges.push({
+          startLineNumber: v.range.end.line + 1,
+          startColumn: 1,
+          endLineNumber: v.range.end.line + 1,
+          endColumn: v.range.end.character + 1,
+        });
+      } else {
+        ranges.push({
+          startLineNumber: v.range.start.line + 1,
+          startColumn: v.range.start.character + 1,
+          endLineNumber: v.range.end.line + 1,
+          endColumn: v.range.end.character + 1,
+        });
+      }
+      const decos: editor.IModelDeltaDecoration[] = ranges.map((range) => ({
         range,
         options: {
           inlineClassName: v.type,
           hoverMessage: v.hover_text ? { value: v.hover_text } : null,
         },
-      };
-      return deco;
+      }));
+      return decos;
     });
-  return decos;
+  console.log(decos);
+  return decos.flat();
 };
