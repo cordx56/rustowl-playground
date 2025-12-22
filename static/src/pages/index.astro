@@ -63,6 +63,7 @@ fn main() {
         language: "rust",
         fontSize: 24,
         theme: "vs-dark",
+        automaticLayout: true,
       });
 
       area.onDidChangeCursorPosition(async (ev) => {
@@ -115,6 +116,7 @@ fn main() {
       align-content: center;
       justify-content: center;
       margin: 10px auto;
+      flex-wrap: wrap;
     }
     .ribbon {
       position: absolute;
