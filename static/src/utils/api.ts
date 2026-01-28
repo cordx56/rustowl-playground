@@ -19,3 +19,9 @@ export const analyze = async (
     return null;
   }
 };
+
+export const health = async () => {
+  try {
+    await fetch("/health");
+  } catch (_e) {}
+};

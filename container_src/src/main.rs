@@ -1,8 +1,11 @@
+use axum::{
+    Json, Router,
+    response::Html,
+    routing::{get, post},
+};
 use std::env;
 use std::io;
 use std::process;
-
-use axum::{Json, Router, routing::post};
 use tokio::{fs, io::AsyncWriteExt, time};
 use uuid::Uuid;
 
@@ -10,7 +13,9 @@ mod lsp;
 
 #[tokio::main]
 async fn main() {
-    let app = Router::new().route("/api/analyze", post(analyze));
+    let app = Router::new()
+        .route("/health", get(async || Html("OK")))
+        .route("/api/analyze", post(analyze));
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
     println!("http://localhost:3000/analyze");

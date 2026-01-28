@@ -15,6 +15,9 @@ import Layout from "../layouts/Layout.astro";
       <p style="margin: 1.4rem; text-align: center; font-size: 1.4rem;">
         Visualize ownership and lifetimes in Rust
       </p>
+      <p style="margin: 1.4rem; text-align: center; font-size: 1.2rem;">
+        Place the cursor on a variable to see underlines!
+      </p>
       <div class="ribbon">
         <a href="https://github.com/cordx56/rustowl"
           ><img
@@ -34,7 +37,7 @@ import Layout from "../layouts/Layout.astro";
 
   <script>
     import { editor } from "monaco-editor";
-    import { analyze } from "../utils/api";
+    import { analyze, health } from "../utils/api";
     import { convert } from "../utils/decorations";
 
     let currentDecoration: editor.IEditorDecorationsCollection | null = null;
@@ -88,6 +91,8 @@ fn main() {
         }
       });
     }
+
+    health();
   </script>
 
   <style is:inline>
